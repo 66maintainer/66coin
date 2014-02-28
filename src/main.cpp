@@ -765,14 +765,20 @@ uint256 static GetOrphanRoot(const CBlock *pblock)
 
 static const int64 nDiffChangeTarget = 600000;
 
-int64 static GetBlockValue(int nHeight, int64 nFees)
+int64 static GetBlockValue(int nHeight, int64 nFees, uint256 prevHash)
 {
 	int64 nSubsidy = 0.000066 * COIN;
 	if (nHeight == 1) {
 		nSubsidy = 3 * COIN;
 	} else if (nHeight < 667) {
 		nSubsidy = 0.00000066 * COIN;
+	} else if(nHeight > 30000) {
+		std::string hashhex = prevHash.ToString();
+		size_t n = std::count(hashhex.begin(), hashhex.end(), '6');
+		if( n % 6 == 0 )
+			nSubsidy *= 6.6;
 	}
+
 	return nSubsidy + nFees;
 }
 
@@ -1333,7 +1339,7 @@ bool CBlock::ConnectBlock(CTxDB &txdb, CBlockIndex *pindex)
 			return error("ConnectBlock() : UpdateTxIndex failed");
 	}
 
-	if (vtx[0].GetValueOut() > GetBlockValue(pindex->nHeight, nFees))
+	if (vtx[0].GetValueOut() > GetBlockValue(pindex->nHeight, nFees, pindex->pprev->GetBlockHash()))
 		return false;
 
 	// Update block index on disk without changing it in memory.
@@ -3208,7 +3214,7 @@ CBlock *CreateNewBlock(CReserveKey &reservekey)
 		nLastBlockSize = nBlockSize;
 		printf("CreateNewBlock(): total size %lu\n", nBlockSize);
 	}
-	pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight + 1, nFees);
+	pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight + 1, nFees, pindexPrev->GetBlockHash());
 
 	// Fill in header
 	pblock->hashPrevBlock = pindexPrev->GetBlockHash();
