@@ -12,28 +12,29 @@ class objc_object;
  */
 class MacDockIconHandler : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    ~MacDockIconHandler();
+	~MacDockIconHandler();
 
-    QMenu *dockMenu();
-    void setIcon(const QIcon &icon);
+	QMenu *dockMenu();
+	void setIcon(const QIcon &icon);
 
-    static MacDockIconHandler *instance();
+	static MacDockIconHandler *instance();
 
-    void handleDockIconClickEvent();
+	void handleDockIconClickEvent();
 
 signals:
-    void dockIconClicked();
+	void dockIconClicked();
 
-public slots:
+public
+slots:
 
 private:
-    MacDockIconHandler();
+	MacDockIconHandler();
 
-    objc_object *m_dockIconClickEventHandler;
-    QWidget *m_dummyWidget;
-    QMenu *m_dockMenu;
+	objc_object *m_dockIconClickEventHandler;
+	QWidget *m_dummyWidget;
+	QMenu *m_dockMenu;
 };
 
 #endif // MACDOCKICONCLICKHANDLER_H

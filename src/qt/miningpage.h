@@ -21,71 +21,74 @@
 #define ERROR 3
 #define LONGPOLL 4
 
-namespace Ui {
-    class MiningPage;
+namespace Ui
+{
+class MiningPage;
 }
 class ClientModel;
 
 class MiningPage : public QWidget
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit MiningPage(QWidget *parent = 0);
-    ~MiningPage();
+	explicit MiningPage(QWidget *parent = 0);
+	~MiningPage();
 
-    bool minerActive;
+	bool minerActive;
 
-    QProcess *minerProcess;
+	QProcess *minerProcess;
 
-    QMap<int, double> threadSpeed;
+	QMap<int, double> threadSpeed;
 
-    QTimer *readTimer;
+	QTimer *readTimer;
 
-    int acceptedShares;
-    int rejectedShares;
+	int acceptedShares;
+	int rejectedShares;
 
-    int roundAcceptedShares;
-    int roundRejectedShares;
+	int roundAcceptedShares;
+	int roundRejectedShares;
 
-    int initThreads;
+	int initThreads;
 
-    void setModel(ClientModel *model);
+	void setModel(ClientModel *model);
 
-public slots:
-    void startPressed();
+public
+slots:
+	void startPressed();
 
-    void startPoolMining();
-    void stopPoolMining();
+	void startPoolMining();
+	void stopPoolMining();
 
-    void updateSpeed();
+	void updateSpeed();
 
-    void loadSettings();
-    void saveSettings();
+	void loadSettings();
+	void saveSettings();
 
-    void reportToList(QString, int, QString);
+	void reportToList(QString, int, QString);
 
-    void minerStarted();
+	void minerStarted();
 
-    void minerError(QProcess::ProcessError);
-    void minerFinished();
+	void minerError(QProcess::ProcessError);
+	void minerFinished();
 
-    void readProcessOutput();
+	void readProcessOutput();
 
-    QString getTime(QString);
-    void enableMiningControls(bool enable);
-    void enablePoolMiningControls(bool enable);
-    ClientModel::MiningType getMiningType();
-    void typeChanged(int index);
-    void debugToggled(bool checked);
+	QString getTime(QString);
+	void enableMiningControls(bool enable);
+	void enablePoolMiningControls(bool enable);
+	ClientModel::MiningType getMiningType();
+	void typeChanged(int index);
+	void debugToggled(bool checked);
 
-private slots:
+private
+slots:
 
 private:
-    Ui::MiningPage *ui;
-    ClientModel *model;
+	Ui::MiningPage *ui;
+	ClientModel *model;
 
-    void resetMiningButton();
+	void resetMiningButton();
 };
 
 #endif // MININGPAGE_H

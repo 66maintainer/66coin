@@ -6,10 +6,11 @@
 
 class URITests : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 
-private slots:
-    void uriTests();
+private
+slots:
+	void uriTests();
 };
 
 #endif // URITESTS_H

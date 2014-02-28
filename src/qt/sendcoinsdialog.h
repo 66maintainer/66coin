@@ -3,8 +3,9 @@
 
 #include <QDialog>
 
-namespace Ui {
-    class SendCoinsDialog;
+namespace Ui
+{
+class SendCoinsDialog;
 }
 class WalletModel;
 class SendCoinsEntry;
@@ -17,38 +18,40 @@ QT_END_NAMESPACE
 /** Dialog for sending bitcoins */
 class SendCoinsDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit SendCoinsDialog(QWidget *parent = 0);
-    ~SendCoinsDialog();
+	explicit SendCoinsDialog(QWidget *parent = 0);
+	~SendCoinsDialog();
 
-    void setModel(WalletModel *model);
+	void setModel(WalletModel *model);
 
-    /** Set up the tab chain manually, as Qt messes up the tab chain by default in some cases (issue http://bugreports.qt.nokia.com/browse/QTBUG-10907).
+	/** Set up the tab chain manually, as Qt messes up the tab chain by default in some cases (issue http://bugreports.qt.nokia.com/browse/QTBUG-10907).
      */
-    QWidget *setupTabChain(QWidget *prev);
+	QWidget *setupTabChain(QWidget *prev);
 
-    void pasteEntry(const SendCoinsRecipient &rv);
-    bool handleURI(const QString &uri);
+	void pasteEntry(const SendCoinsRecipient &rv);
+	bool handleURI(const QString &uri);
 
-public slots:
-    void clear();
-    void reject();
-    void accept();
-    SendCoinsEntry *addEntry();
-    void updateRemoveEnabled();
-    void setBalance(qint64 balance, qint64 unconfirmedBalance, qint64 immatureBalance);
+public
+slots:
+	void clear();
+	void reject();
+	void accept();
+	SendCoinsEntry *addEntry();
+	void updateRemoveEnabled();
+	void setBalance(qint64 balance, qint64 unconfirmedBalance, qint64 immatureBalance);
 
 private:
-    Ui::SendCoinsDialog *ui;
-    WalletModel *model;
-    bool fNewRecipientAllowed;
+	Ui::SendCoinsDialog *ui;
+	WalletModel *model;
+	bool fNewRecipientAllowed;
 
-private slots:
-    void on_sendButton_clicked();
-    void removeEntry(SendCoinsEntry* entry);
-    void updateDisplayUnit();
+private
+slots:
+	void on_sendButton_clicked();
+	void removeEntry(SendCoinsEntry *entry);
+	void updateDisplayUnit();
 };
 
 #endif // SENDCOINSDIALOG_H

@@ -3,8 +3,9 @@
 
 #include <QDialog>
 
-namespace Ui {
-    class AskPassphraseDialog;
+namespace Ui
+{
+class AskPassphraseDialog;
 }
 
 class WalletModel;
@@ -13,33 +14,34 @@ class WalletModel;
  */
 class AskPassphraseDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    enum Mode {
-        Encrypt,    /**< Ask passphrase twice and encrypt */
-        Unlock,     /**< Ask passphrase and unlock */
-        ChangePass, /**< Ask old passphrase + new passphrase twice */
-        Decrypt     /**< Ask passphrase and decrypt wallet */
-    };
+	enum Mode {
+		Encrypt,    /**< Ask passphrase twice and encrypt */
+		Unlock,     /**< Ask passphrase and unlock */
+		ChangePass, /**< Ask old passphrase + new passphrase twice */
+		Decrypt     /**< Ask passphrase and decrypt wallet */
+	};
 
-    explicit AskPassphraseDialog(Mode mode, QWidget *parent = 0);
-    ~AskPassphraseDialog();
+	explicit AskPassphraseDialog(Mode mode, QWidget *parent = 0);
+	~AskPassphraseDialog();
 
-    void accept();
+	void accept();
 
-    void setModel(WalletModel *model);
+	void setModel(WalletModel *model);
 
 private:
-    Ui::AskPassphraseDialog *ui;
-    Mode mode;
-    WalletModel *model;
-    bool fCapsLock;
+	Ui::AskPassphraseDialog *ui;
+	Mode mode;
+	WalletModel *model;
+	bool fCapsLock;
 
-private slots:
-    void textChanged();
-    bool event(QEvent *event);
-    bool eventFilter(QObject *, QEvent *event);
+private
+slots:
+	void textChanged();
+	bool event(QEvent *event);
+	bool eventFilter(QObject *, QEvent *event);
 };
 
 #endif // ASKPASSPHRASEDIALOG_H

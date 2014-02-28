@@ -11,54 +11,57 @@
  */
 class OptionsModel : public QAbstractListModel
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit OptionsModel(QObject *parent = 0);
+	explicit OptionsModel(QObject *parent = 0);
 
-    enum OptionID {
-        StartAtStartup,    // bool
-        MinimizeToTray,    // bool
-        MapPortUPnP,       // bool
-        MinimizeOnClose,   // bool
-        ProxyUse,          // bool
-        ProxyIP,           // QString
-        ProxyPort,         // int
-        ProxySocksVersion, // int
-        Fee,               // qint64
-        DisplayUnit,       // BitcoinUnits::Unit
-        DisplayAddresses,  // bool
-        DetachDatabases,   // bool
-        Language,          // QString
-        OptionIDRowCount,
-    };
+	enum OptionID {
+		StartAtStartup,    // bool
+		MinimizeToTray,    // bool
+		MapPortUPnP,       // bool
+		MinimizeOnClose,   // bool
+		ProxyUse,          // bool
+		ProxyIP,           // QString
+		ProxyPort,         // int
+		ProxySocksVersion, // int
+		Fee,               // qint64
+		DisplayUnit,       // BitcoinUnits::Unit
+		DisplayAddresses,  // bool
+		DetachDatabases,   // bool
+		Language,          // QString
+		OptionIDRowCount,
+	};
 
-    void Init();
+	void Init();
 
-    /* Migrate settings from wallet.dat after app initialization */
-    bool Upgrade(); /* returns true if settings upgraded */
+	/* Migrate settings from wallet.dat after app initialization */
+	bool Upgrade(); /* returns true if settings upgraded */
 
-    int rowCount(const QModelIndex & parent = QModelIndex()) const;
-    QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole);
+	int rowCount(const QModelIndex &parent = QModelIndex()) const;
+	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+	bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
-    /* Explicit getters */
-    qint64 getTransactionFee();
-    bool getMinimizeToTray();
-    bool getMinimizeOnClose();
-    int getDisplayUnit();
-    bool getDisplayAddresses();
-    QString getLanguage() { return language; }
+	/* Explicit getters */
+	qint64 getTransactionFee();
+	bool getMinimizeToTray();
+	bool getMinimizeOnClose();
+	int getDisplayUnit();
+	bool getDisplayAddresses();
+	QString getLanguage()
+	{
+		return language;
+	}
 
 private:
-    int nDisplayUnit;
-    bool bDisplayAddresses;
-    bool fMinimizeToTray;
-    bool fMinimizeOnClose;
-    QString language;
+	int nDisplayUnit;
+	bool bDisplayAddresses;
+	bool fMinimizeToTray;
+	bool fMinimizeOnClose;
+	QString language;
 
 signals:
-    void displayUnitChanged(int unit);
+	void displayUnitChanged(int unit);
 };
 
 #endif // OPTIONSMODEL_H

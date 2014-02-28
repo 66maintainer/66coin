@@ -13,34 +13,34 @@ QT_END_NAMESPACE
  */
 class CSVModelWriter : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
 public:
-    explicit CSVModelWriter(const QString &filename, QObject *parent = 0);
+	explicit CSVModelWriter(const QString &filename, QObject *parent = 0);
 
-    void setModel(const QAbstractItemModel *model);
-    void addColumn(const QString &title, int column, int role=Qt::EditRole);
+	void setModel(const QAbstractItemModel *model);
+	void addColumn(const QString &title, int column, int role = Qt::EditRole);
 
-    /** Perform export of the model to CSV.
+	/** Perform export of the model to CSV.
         @returns true on success, false otherwise
     */
-    bool write();
+	bool write();
 
 private:
-    QString filename;
-    const QAbstractItemModel *model;
+	QString filename;
+	const QAbstractItemModel *model;
 
-    struct Column
-    {
-        QString title;
-        int column;
-        int role;
-    };
-    QList<Column> columns;
+	struct Column
+	{
+		QString title;
+		int column;
+		int role;
+	};
+	QList<Column> columns;
 
 signals:
 
-public slots:
-
+public
+slots:
 };
 
 #endif // CSVMODELWRITER_H
