@@ -70,7 +70,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent)
           notificator(0),
           rpcConsole(0)
 {
-	resize(850, 550);
+	resize(850, 440);
 	setWindowTitle(tr("66") + " - " + tr("Wallet"));
 #ifndef Q_WS_MAC
 	qApp->setWindowIcon(QIcon(":icons/bitcoin"));

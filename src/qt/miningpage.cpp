@@ -7,8 +7,6 @@ MiningPage::MiningPage(QWidget *parent)
 {
 	ui->setupUi(this);
 
-	setFixedSize(400, 660);
-
 	minerActive = false;
 
 	minerProcess = new QProcess(this);
