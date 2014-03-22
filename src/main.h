@@ -1026,6 +1026,7 @@ public:
 	unsigned int nFile;
 	unsigned int nBlockPos;
 	int nHeight;
+	int64 nMoneySupply;
 	CBigNum bnChainWork;
 
 	// block header
@@ -1043,6 +1044,7 @@ public:
 		nFile = 0;
 		nBlockPos = 0;
 		nHeight = 0;
+		nMoneySupply = 0;
 		bnChainWork = 0;
 
 		nVersion = 0;
@@ -1060,6 +1062,7 @@ public:
 		nFile = nFileIn;
 		nBlockPos = nBlockPosIn;
 		nHeight = 0;
+		nMoneySupply = 0;
 		bnChainWork = 0;
 
 		nVersion = block.nVersion;
@@ -1142,8 +1145,8 @@ public:
 
 	std::string ToString() const
 	{
-		return strprintf("CBlockIndex(nprev=%08x, pnext=%08x, nFile=%d, nBlockPos=%-6d nHeight=%d, merkle=%s, hashBlock=%s)",
-		                 pprev, pnext, nFile, nBlockPos, nHeight,
+		return strprintf("CBlockIndex(nprev=%08x, pnext=%08x, nFile=%d, nBlockPos=%-6d nHeight=%d, nMoneySupply=%s, merkle=%s, hashBlock=%s)",
+		                 pprev, pnext, nFile, nBlockPos, nHeight, nMoneySupply,
 		                 hashMerkleRoot.ToString().substr(0, 10).c_str(),
 		                 GetBlockHash().ToString().substr(0, 20).c_str());
 	}
@@ -1181,6 +1184,7 @@ public:
 	  READWRITE(nFile);
 	  READWRITE(nBlockPos);
 	  READWRITE(nHeight);
+	  READWRITE(nMoneySupply);
 
 	  // block header
 	  READWRITE(this->nVersion);

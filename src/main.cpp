@@ -1313,6 +1313,8 @@ bool CBlock::ConnectBlock(CTxDB &txdb, CBlockIndex *pindex)
 
 	map<uint256, CTxIndex> mapQueuedChanges;
 	int64 nFees = 0;
+	int64 nValueIn = 0;
+	int64 nValueOut = 0;
 	unsigned int nSigOps = 0;
 	BOOST_FOREACH(CTransaction & tx, vtx)
 	{
@@ -1335,7 +1337,9 @@ bool CBlock::ConnectBlock(CTxDB &txdb, CBlockIndex *pindex)
 		nTxPos += ::GetSerializeSize(tx, SER_DISK, CLIENT_VERSION);
 
 		MapPrevTx mapInputs;
-		if (!tx.IsCoinBase()) {
+		if (tx.IsCoinBase())
+			nValueOut += tx.GetValueOut();
+		else {
 			bool fInvalid;
 			if (!tx.FetchInputs(txdb, mapQueuedChanges, true, false, mapInputs, fInvalid))
 				return false;
@@ -1349,7 +1353,11 @@ bool CBlock::ConnectBlock(CTxDB &txdb, CBlockIndex *pindex)
 					return DoS(100, error("ConnectBlock() : too many sigops"));
 			}
 
-			nFees += tx.GetValueIn(mapInputs) - tx.GetValueOut();
+			int64 nTxValueIn = tx.GetValueIn(mapInputs);
+			int64 nTxValueOut = tx.GetValueOut();
+			nValueIn += nTxValueIn;
+			nValueOut += nTxValueOut;
+			nFees += nTxValueIn - nTxValueOut;
 
 			if (!tx.ConnectInputs(mapInputs, mapQueuedChanges, posThisTx, pindex, true, false, fStrictPayToScriptHash))
 				return false;
@@ -1357,6 +1365,10 @@ bool CBlock::ConnectBlock(CTxDB &txdb, CBlockIndex *pindex)
 
 		mapQueuedChanges[hashTx] = CTxIndex(posThisTx, tx.vout.size());
 	}
+
+	pindex->nMoneySupply = (pindex->pprev? pindex->pprev->nMoneySupply : 0) + nValueOut - nValueIn;
+	if (!txdb.WriteBlockIndex(CDiskBlockIndex(pindex)))
+		return error("Connect() : WriteBlockIndex for pindex failed");
 
 	// Write queued txindex changes
 	for (map<uint256, CTxIndex>::iterator mi = mapQueuedChanges.begin(); mi != mapQueuedChanges.end(); ++mi) {

@@ -640,6 +640,7 @@ bool CTxDB::LoadBlockIndexGuts()
 				pindexNew->nFile = diskindex.nFile;
 				pindexNew->nBlockPos = diskindex.nBlockPos;
 				pindexNew->nHeight = diskindex.nHeight;
+				pindexNew->nMoneySupply = diskindex.nMoneySupply;
 				pindexNew->nVersion = diskindex.nVersion;
 				pindexNew->hashMerkleRoot = diskindex.hashMerkleRoot;
 				pindexNew->nTime = diskindex.nTime;
