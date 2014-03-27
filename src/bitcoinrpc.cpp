@@ -2085,7 +2085,7 @@ Value getblocktemplate(const Array &params, bool fHelp)
 			uint256 txHash = tx.GetHash();
 			setTxIndex[txHash] = i++;
 
-			if (tx.IsCoinBase())
+			if (i == 1 && tx.IsCoinBase())
 				continue;
 
 			Object entry;
@@ -2099,7 +2099,7 @@ Value getblocktemplate(const Array &params, bool fHelp)
 			MapPrevTx mapInputs;
 			map<uint256, CTxIndex> mapUnused;
 			bool fInvalid = false;
-			if (tx.FetchInputs(txdb, mapUnused, false, false, mapInputs, fInvalid)) {
+			if (!tx.IsCoinBase() && tx.FetchInputs(txdb, mapUnused, false, false, mapInputs, fInvalid)) {
 				entry.push_back(Pair("fee", (int64_t)(tx.GetValueIn(mapInputs) - tx.GetValueOut())));
 
 				Array deps;

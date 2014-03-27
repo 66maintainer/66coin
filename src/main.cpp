@@ -58,6 +58,9 @@ CScript COINBASE_FLAGS;
 const string strMessageMagic = "66 Signed Message:\n";
 
 const int FIRST_HARDFORK_BLOCK_HEIGHT = 32000;
+const int SECOND_HARDFORK_BLOCK_HEIGHT = 80066;
+const double BONUS_REWARD_FACTOR = 5.6;
+const int64 MAX_COINS = 66 * COIN;
 
 double dHashesPerSec;
 int64 nHPSTimerStart;
@@ -770,21 +773,49 @@ static uint256 GetOrphanRoot(const CBlock *pblock)
 
 static const int64 nDiffChangeTarget = 600000;
 
-static int64 GetBlockValue(int nHeight, int64 nFees, uint256 prevHash)
+static int64 GetBlockValue(int nHeight, int64 nFees, CBlockIndex *prevBlock)
 {
 	int64 nSubsidy = 0.000066 * COIN;
-	if (nHeight == 1) {
-		nSubsidy = 3 * COIN;
-	} else if (nHeight < 667) {
-		nSubsidy = 0.00000066 * COIN;
-	} else if ((nHeight >= FIRST_HARDFORK_BLOCK_HEIGHT) || fTestNet) {
-		std::string hashhex = prevHash.ToString();
-		size_t n = std::count(hashhex.begin(), hashhex.end(), '6');
-		if (n % 6 == 0)
-			nSubsidy *= 6.6;
+	if( fTestNet ) {
+		if( nHeight == 1 )
+			nSubsidy = 65.99 * COIN;
+	} else {
+		if (nHeight == 1) {
+			nSubsidy = 3 * COIN;
+		} else if (nHeight < 667) {
+			nSubsidy = 0.00000066 * COIN;
+		} else if ((nHeight >= FIRST_HARDFORK_BLOCK_HEIGHT) && (nHeight < SECOND_HARDFORK_BLOCK_HEIGHT)) {
+			std::string hashhex = prevBlock->GetBlockHash().ToString();
+			size_t n = std::count(hashhex.begin(), hashhex.end(), '6');
+			if (n % 6 == 0)
+				nSubsidy *= 6.6;
+		}
+	}
+
+	if( nSubsidy + prevBlock->nMoneySupply > MAX_COINS) {
+		nSubsidy = MAX_COINS - prevBlock->nMoneySupply;
 	}
 
 	return nSubsidy + nFees;
+}
+
+bool DeservesBonusReward(CBlockIndex* pindex)
+{
+	if ((fTestNet && pindex->nHeight < 1) || (!fTestNet && pindex->nHeight < SECOND_HARDFORK_BLOCK_HEIGHT))
+	    return false;
+
+	// this is to prevent adding unnecessary complexity to limit max coins
+	if(pindex->nMoneySupply > 66.999 * COIN)
+		return false;
+
+	string hashhex = pindex->GetBlockHash().ToString();
+	size_t n = std::count(hashhex.begin(), hashhex.end(), '6');
+	if (n % 6 == 0) {
+		printf("FOUND BONUS BLOCK!\n");
+		return true;
+	}
+
+	return false;
 }
 
 static const int64 nTargetTimespan = 660;
@@ -1376,7 +1407,7 @@ bool CBlock::ConnectBlock(CTxDB &txdb, CBlockIndex *pindex)
 			return error("ConnectBlock() : UpdateTxIndex failed");
 	}
 
-	if (vtx[0].GetValueOut() > GetBlockValue(pindex->nHeight, nFees, pindex->pprev->GetBlockHash()))
+	if (vtx[0].GetValueOut() > GetBlockValue(pindex->nHeight, nFees, pindex->pprev))
 		return false;
 
 	// Update block index on disk without changing it in memory.
@@ -1675,10 +1706,10 @@ bool CBlock::CheckBlock() const
 	if (GetBlockTime() > GetAdjustedTime() + 2 * 60 * 60)
 		return error("CheckBlock() : block timestamp too far in the future");
 
-	// First transaction must be coinbase, the rest must not be
+	// First transaction must be coinbase, second transaction might be coinbase, the rest must not be
 	if (vtx.empty() || !vtx[0].IsCoinBase())
 		return DoS(100, error("CheckBlock() : first tx is not coinbase"));
-	for (unsigned int i = 1; i < vtx.size(); i++)
+	for (unsigned int i = 2; i < vtx.size(); i++)
 		if (vtx[i].IsCoinBase())
 			return DoS(100, error("CheckBlock() : more than one coinbase"));
 
@@ -1733,6 +1764,29 @@ bool CBlock::AcceptBlock()
 	// Check timestamp against prev
 	if (GetBlockTime() <= pindexPrev->GetMedianTimePast())
 		return error("AcceptBlock() : block's timestamp is too early");
+
+	bool allowBonus = DeservesBonusReward(pindexPrev);
+	if( vtx.size() > 1 ) {
+		if( vtx[1].IsCoinBase() ) {
+			if(!allowBonus)
+				return DoS(100, error("AcceptBlock() : additional coinbase not allow for this block"));
+
+			CBlock prevBlock;
+
+			prevBlock.ReadFromDisk(pindexPrev, true);
+			if (prevBlock.vtx[0].vout.size() != vtx[1].vout.size())
+				return DoS(100, error("AcceptBlock() : incorrect bonus block reward tx"));
+			for (unsigned j = 0; j < vtx[1].vout.size(); j++)
+				if (prevBlock.vtx[0].vout[j].nValue * BONUS_REWARD_FACTOR != vtx[1].vout[j].nValue || prevBlock.vtx[0].vout[j].scriptPubKey != vtx[1].vout[j].scriptPubKey)
+					return DoS(100, error("AcceptBlock() : incorrect vout in bonus block reward tx"));
+
+			allowBonus = false;
+			printf("AcceptBlock() : good bonus block reward tx %s\n", vtx[1].GetHash().ToString().c_str());
+		}
+	}
+
+	if( allowBonus )
+		return DoS(100, error("AcceptBlock() : missing bonus block reward tx"));
 
 	// Check that all transactions are finalized
 	BOOST_FOREACH(const CTransaction & tx, vtx)
@@ -3119,6 +3173,20 @@ CBlock *CreateNewBlock(CReserveKey &reservekey)
 	// Add our coinbase tx as first transaction
 	pblock->vtx.push_back(txNew);
 
+	// Check if the previous block was a bonus block and create a reward tx if necessary
+	// The reward tx will be a copy of the bonus block coinbase tx with the outputs adjusted proportionally
+	if (DeservesBonusReward(pindexPrev)) {
+		CBlock prevBlock;
+		prevBlock.ReadFromDisk(pindexPrev, true);
+
+		CTransaction txReward = prevBlock.vtx[0];
+		for (unsigned i = 0; i < txReward.vout.size(); i++)
+			txReward.vout[i].nValue *= BONUS_REWARD_FACTOR;
+
+		// Add bonus block reward tx
+		pblock->vtx.push_back(txReward);
+	}
+
 	// Collect memory pool transactions into the block
 	int64 nFees = 0;
 	{
@@ -3251,7 +3319,7 @@ CBlock *CreateNewBlock(CReserveKey &reservekey)
 		nLastBlockSize = nBlockSize;
 		printf("CreateNewBlock(): total size %lu\n", nBlockSize);
 	}
-	pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight + 1, nFees, pindexPrev->GetBlockHash());
+	pblock->vtx[0].vout[0].nValue = GetBlockValue(pindexPrev->nHeight + 1, nFees, pindexPrev);
 
 	// Fill in header
 	pblock->hashPrevBlock = pindexPrev->GetBlockHash();
