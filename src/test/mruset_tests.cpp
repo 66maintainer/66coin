@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(mruset_limited_size)
 }
 
 // 16-bit permutation function
-int static permute(int n)
+static int permute(int n)
 {
 	// hexadecimals of pi; verified to be linearly independent
 	static const int table[16] = {0x243F, 0x6A88, 0x85A3, 0x08D3, 0x1319, 0x8A2E, 0x0370, 0x7344,

@@ -428,7 +428,7 @@ bool CTxDB::WriteBestInvalidWork(CBigNum bnBestInvalidWork)
 	return Write(string("bnBestInvalidWork"), bnBestInvalidWork);
 }
 
-CBlockIndex static *InsertBlockIndex(uint256 hash)
+static CBlockIndex *InsertBlockIndex(uint256 hash)
 {
 	if (hash == 0)
 		return NULL;

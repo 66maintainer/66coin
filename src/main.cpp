@@ -66,7 +66,7 @@ int64 nHPSTimerStart;
 int64 nTransactionFee = 1;
 int64 nMinimumInputValue = CENT / 1000000;
 
-unsigned int static KimotoGravityWell(const CBlockIndex *pindexLast, const CBlock *pblock, uint64 TargetBlocksSpacingSeconds, uint64 PastBlocksMin, uint64 PastBlocksMax);
+static unsigned int KimotoGravityWell(const CBlockIndex *pindexLast, const CBlock *pblock, uint64 TargetBlocksSpacingSeconds, uint64 PastBlocksMin, uint64 PastBlocksMax);
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -92,7 +92,7 @@ void UnregisterWallet(CWallet *pwalletIn)
 }
 
 // check whether the passed transaction is from us
-bool static IsFromMe(CTransaction &tx)
+static bool IsFromMe(CTransaction &tx)
 {
 	BOOST_FOREACH(CWallet * pwallet, setpwalletRegistered)
 	if (pwallet->IsFromMe(tx))
@@ -101,7 +101,7 @@ bool static IsFromMe(CTransaction &tx)
 }
 
 // get the wallet transaction with the given hash (if it exists)
-bool static GetTransaction(const uint256 &hashTx, CWalletTx &wtx)
+static bool GetTransaction(const uint256 &hashTx, CWalletTx &wtx)
 {
 	BOOST_FOREACH(CWallet * pwallet, setpwalletRegistered)
 	if (pwallet->GetTransaction(hashTx, wtx))
@@ -110,7 +110,7 @@ bool static GetTransaction(const uint256 &hashTx, CWalletTx &wtx)
 }
 
 // erases transaction with the given hash from all wallets
-void static EraseFromWallets(uint256 hash)
+static void EraseFromWallets(uint256 hash)
 {
 	BOOST_FOREACH(CWallet * pwallet, setpwalletRegistered)
 	pwallet->EraseFromWallet(hash);
@@ -124,35 +124,35 @@ void SyncWithWallets(const CTransaction &tx, const CBlock *pblock, bool fUpdate)
 }
 
 // notify wallets about a new best chain
-void static SetBestChain(const CBlockLocator &loc)
+static void SetBestChain(const CBlockLocator &loc)
 {
 	BOOST_FOREACH(CWallet * pwallet, setpwalletRegistered)
 	pwallet->SetBestChain(loc);
 }
 
 // notify wallets about an updated transaction
-void static UpdatedTransaction(const uint256 &hashTx)
+static void UpdatedTransaction(const uint256 &hashTx)
 {
 	BOOST_FOREACH(CWallet * pwallet, setpwalletRegistered)
 	pwallet->UpdatedTransaction(hashTx);
 }
 
 // dump all wallets
-void static PrintWallets(const CBlock &block)
+static void PrintWallets(const CBlock &block)
 {
 	BOOST_FOREACH(CWallet * pwallet, setpwalletRegistered)
 	pwallet->PrintWallet(block);
 }
 
 // notify wallets about an incoming inventory (for request counts)
-void static Inventory(const uint256 &hash)
+static void Inventory(const uint256 &hash)
 {
 	BOOST_FOREACH(CWallet * pwallet, setpwalletRegistered)
 	pwallet->Inventory(hash);
 }
 
 // ask wallets to resend their transactions
-void static ResendWalletTransactions()
+static void ResendWalletTransactions()
 {
 	BOOST_FOREACH(CWallet * pwallet, setpwalletRegistered)
 	pwallet->ResendWalletTransactions();
@@ -195,7 +195,7 @@ bool AddOrphanTx(const CDataStream &vMsg)
 	return true;
 }
 
-void static EraseOrphanTx(uint256 hash)
+static void EraseOrphanTx(uint256 hash)
 {
 	if (!mapOrphanTransactions.count(hash))
 		return;
@@ -760,7 +760,7 @@ bool CBlock::ReadFromDisk(const CBlockIndex *pindex, bool fReadTransactions)
 	return true;
 }
 
-uint256 static GetOrphanRoot(const CBlock *pblock)
+static uint256 GetOrphanRoot(const CBlock *pblock)
 {
 	// Work back to the first block in the orphan chain
 	while (mapOrphanBlocks.count(pblock->hashPrevBlock))
@@ -770,7 +770,7 @@ uint256 static GetOrphanRoot(const CBlock *pblock)
 
 static const int64 nDiffChangeTarget = 600000;
 
-int64 static GetBlockValue(int nHeight, int64 nFees, uint256 prevHash)
+static int64 GetBlockValue(int nHeight, int64 nFees, uint256 prevHash)
 {
 	int64 nSubsidy = 0.000066 * COIN;
 	if (nHeight == 1) {
@@ -827,7 +827,7 @@ unsigned int ComputeMinWork(unsigned int nBase, int64 nTime)
 	return bnResult.GetCompact();
 }
 
-unsigned int static GetNextWorkRequiredBeforeKimoto(const CBlockIndex *pindexLast, const CBlock *pblock)
+static unsigned int GetNextWorkRequiredBeforeKimoto(const CBlockIndex *pindexLast, const CBlock *pblock)
 {
 	unsigned int nProofOfWorkLimit = bnProofOfWorkLimit.GetCompact();
 
@@ -915,7 +915,7 @@ unsigned int static GetNextWorkRequiredBeforeKimoto(const CBlockIndex *pindexLas
 	return bnNew.GetCompact();
 }
 
-unsigned int static GetNextWorkRequiredKimoto(const CBlockIndex *pindexLast, const CBlock *pblock)
+static unsigned int GetNextWorkRequiredKimoto(const CBlockIndex *pindexLast, const CBlock *pblock)
 {
 	static const int64 BlocksTargetSpacing = 66;
 	unsigned int TimeDaySeconds = 60 * 60 * 24;
@@ -927,7 +927,7 @@ unsigned int static GetNextWorkRequiredKimoto(const CBlockIndex *pindexLast, con
 	return KimotoGravityWell(pindexLast, pblock, BlocksTargetSpacing, PastBlocksMin, PastBlocksMax);
 }
 
-unsigned int static GetNextWorkRequired(const CBlockIndex *pindexLast, const CBlock *pblock)
+static unsigned int GetNextWorkRequired(const CBlockIndex *pindexLast, const CBlock *pblock)
 {
 	if ((pindexLast->nHeight > FIRST_HARDFORK_BLOCK_HEIGHT) || fTestNet)
 		return GetNextWorkRequiredKimoto(pindexLast, pblock);
@@ -971,7 +971,7 @@ bool IsInitialBlockDownload()
 	        pindexBest->GetBlockTime() < GetTime() - 24 * 60 * 60);
 }
 
-void static InvalidChainFound(CBlockIndex *pindexNew)
+static void InvalidChainFound(CBlockIndex *pindexNew)
 {
 	if (pindexNew->bnChainWork > bnBestInvalidWork) {
 		bnBestInvalidWork = pindexNew->bnChainWork;
@@ -1395,7 +1395,7 @@ bool CBlock::ConnectBlock(CTxDB &txdb, CBlockIndex *pindex)
 	return true;
 }
 
-bool static Reorganize(CTxDB &txdb, CBlockIndex *pindexNew)
+static bool Reorganize(CTxDB &txdb, CBlockIndex *pindexNew)
 {
 	printf("REORGANIZE\n");
 
@@ -2239,7 +2239,7 @@ bool CAlert::ProcessAlert()
 // Messages
 //
 
-bool static AlreadyHave(CTxDB &txdb, const CInv &inv)
+static bool AlreadyHave(CTxDB &txdb, const CInv &inv)
 {
 	switch (inv.type) {
 		case MSG_TX: {
@@ -2266,7 +2266,7 @@ bool static AlreadyHave(CTxDB &txdb, const CInv &inv)
 // a large 4-byte int at any alignment.
 unsigned char pchMessageStart[4] = {0xc0, 0xc0, 0xfb, 0xdb}; // 66: increase each by adding 2 to bitcoin's value.
 
-bool static ProcessMessage(CNode *pfrom, string strCommand, CDataStream &vRecv)
+static bool ProcessMessage(CNode *pfrom, string strCommand, CDataStream &vRecv)
 {
 	static map<CService, CPubKey> mapReuseKey;
 	RandAddSeedPerfmon();
@@ -3008,7 +3008,7 @@ bool SendMessages(CNode *pto, bool fSendTrickle)
 // BitcoinMiner
 //
 
-int static FormatHashBlocks(void *pbuffer, unsigned int len)
+static int FormatHashBlocks(void *pbuffer, unsigned int len)
 {
 	unsigned char *pdata = (unsigned char *)pbuffer;
 	unsigned int blocks = 1 + ((len + 8) / 64);
@@ -3051,7 +3051,7 @@ void SHA256Transform(void *pstate, void *pinput, const void *pinit)
 // between calls, but periodically or if nNonce is 0xffff0000 or above,
 // the block is rebuilt and nNonce starts over at zero.
 //
-unsigned int static ScanHash_CryptoPP(char *pmidstate, char *pdata, char *phash1, char *phash, unsigned int &nHashesDone)
+static unsigned int ScanHash_CryptoPP(char *pmidstate, char *pdata, char *phash1, char *phash, unsigned int &nHashesDone)
 {
 	unsigned int &nNonce = *(unsigned int *)(pdata + 12);
 	for (;;) {
@@ -3358,13 +3358,13 @@ bool CheckWork(CBlock *pblock, CWallet &wallet, CReserveKey &reservekey)
 	return true;
 }
 
-void static ThreadBitcoinMiner(void *parg);
+static void ThreadBitcoinMiner(void *parg);
 
 static bool fGenerateBitcoins = false;
 static bool fLimitProcessors = false;
 static int nLimitProcessors = -1;
 
-void static BitcoinMiner(CWallet *pwallet)
+static void BitcoinMiner(CWallet *pwallet)
 {
 	printf("BitcoinMiner started\n");
 	SetThreadPriority(THREAD_PRIORITY_LOWEST);
@@ -3499,7 +3499,7 @@ void static BitcoinMiner(CWallet *pwallet)
 	}
 }
 
-void static ThreadBitcoinMiner(void *parg)
+static void ThreadBitcoinMiner(void *parg)
 {
 	CWallet *pwallet = (CWallet *)parg;
 	try
@@ -3549,7 +3549,7 @@ void GenerateBitcoins(bool fGenerate, CWallet *pwallet)
 	}
 }
 
-unsigned int static KimotoGravityWell(const CBlockIndex *pindexLast, const CBlock *pblock, uint64 TargetBlocksSpacingSeconds, uint64 PastBlocksMin, uint64 PastBlocksMax)
+static unsigned int KimotoGravityWell(const CBlockIndex *pindexLast, const CBlock *pblock, uint64 TargetBlocksSpacingSeconds, uint64 PastBlocksMin, uint64 PastBlocksMax)
 {
 	/* current difficulty formula, megacoin - kimoto gravity well */
 	const CBlockIndex *BlockLastSolved = pindexLast;

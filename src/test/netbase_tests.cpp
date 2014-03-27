@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(netbase_properties)
 	BOOST_CHECK(CNetAddr("127.0.0.1").IsValid());
 }
 
-bool static TestSplitHost(string test, string host, int port)
+static bool TestSplitHost(string test, string host, int port)
 {
 	string hostOut;
 	int portOut = -1;
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(netbase_splithost)
 	BOOST_CHECK(TestSplitHost("", "", -1));
 }
 
-bool static TestParse(string src, string canon)
+static bool TestParse(string src, string canon)
 {
 	CService addr;
 	if (!LookupNumeric(src.c_str(), addr, 65535))

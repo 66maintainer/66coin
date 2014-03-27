@@ -181,19 +181,19 @@ int main(int argc, char *argv[])
 }
 #endif
 
-bool static InitError(const std::string &str)
+static bool InitError(const std::string &str)
 {
 	uiInterface.ThreadSafeMessageBox(str, _("66"), CClientUIInterface::OK | CClientUIInterface::MODAL);
 	return false;
 }
 
-bool static InitWarning(const std::string &str)
+static bool InitWarning(const std::string &str)
 {
 	uiInterface.ThreadSafeMessageBox(str, _("66"), CClientUIInterface::OK | CClientUIInterface::ICON_EXCLAMATION | CClientUIInterface::MODAL);
 	return true;
 }
 
-bool static Bind(const CService &addr, bool fError = true)
+static bool Bind(const CService &addr, bool fError = true)
 {
 	if (IsLimited(addr))
 		return false;

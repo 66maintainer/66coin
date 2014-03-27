@@ -180,7 +180,7 @@ bool RecvLine(SOCKET hSocket, string &strLine)
 
 // used when scores of local addresses may have changed
 // pushes better local address to peers
-void static AdvertizeLocal()
+static void AdvertizeLocal()
 {
 	LOCK(cs_vNodes);
 	BOOST_FOREACH(CNode * pnode, vNodes)
@@ -1175,7 +1175,7 @@ void ThreadOpenConnections(void *parg)
 	printf("ThreadOpenConnections exited\n");
 }
 
-void static ProcessOneShot()
+static void ProcessOneShot()
 {
 	string strDest;
 	{
@@ -1616,7 +1616,7 @@ bool BindListenPort(const CService &addrBind, string &strError)
 	return true;
 }
 
-void static Discover()
+static void Discover()
 {
 	if (!fDiscover)
 		return;

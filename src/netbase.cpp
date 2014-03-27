@@ -61,7 +61,7 @@ void SplitHostPort(std::string in, int &portOut, std::string &hostOut)
 		hostOut = in;
 }
 
-bool static LookupIntern(const char *pszName, std::vector<CNetAddr> &vIP, unsigned int nMaxSolutions, bool fAllowLookup)
+static bool LookupIntern(const char *pszName, std::vector<CNetAddr> &vIP, unsigned int nMaxSolutions, bool fAllowLookup)
 {
 	vIP.clear();
 
@@ -173,7 +173,7 @@ bool LookupNumeric(const char *pszName, CService &addr, int portDefault)
 	return Lookup(pszName, addr, portDefault, false);
 }
 
-bool static Socks4(const CService &addrDest, SOCKET &hSocket)
+static bool Socks4(const CService &addrDest, SOCKET &hSocket)
 {
 	printf("SOCKS4 connecting %s\n", addrDest.ToString().c_str());
 	if (!addrDest.IsIPv4()) {
@@ -212,7 +212,7 @@ bool static Socks4(const CService &addrDest, SOCKET &hSocket)
 	return true;
 }
 
-bool static Socks5(string strDest, int port, SOCKET &hSocket)
+static bool Socks5(string strDest, int port, SOCKET &hSocket)
 {
 	printf("SOCKS5 connecting %s\n", strDest.c_str());
 	if (strDest.size() > 255) {
@@ -317,7 +317,7 @@ bool static Socks5(string strDest, int port, SOCKET &hSocket)
 	return true;
 }
 
-bool static ConnectSocketDirectly(const CService &addrConnect, SOCKET &hSocketRet, int nTimeout)
+static bool ConnectSocketDirectly(const CService &addrConnect, SOCKET &hSocketRet, int nTimeout)
 {
 	hSocketRet = INVALID_SOCKET;
 
@@ -901,7 +901,7 @@ void CNetAddr::print() const
 // and only used in GetReachabilityFrom
 static const int NET_UNKNOWN = NET_MAX + 0;
 static const int NET_TEREDO = NET_MAX + 1;
-int static GetExtNetwork(const CNetAddr *addr)
+static int GetExtNetwork(const CNetAddr *addr)
 {
 	if (addr == NULL)
 		return NET_UNKNOWN;

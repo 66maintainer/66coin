@@ -12,7 +12,7 @@ OptionsModel::OptionsModel(QObject *parent)
 	Init();
 }
 
-bool static ApplyProxySettings()
+static bool ApplyProxySettings()
 {
 	QSettings settings;
 	CService addrProxy(settings.value("addrProxy", "127.0.0.1:9050").toString().toStdString());

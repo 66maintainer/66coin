@@ -294,7 +294,7 @@ public:
 		return Write(std::string("version"), nVersion);
 	}
 
-	bool static Rewrite(const std::string &strFile, const char *pszSkip = NULL);
+	static bool Rewrite(const std::string &strFile, const char *pszSkip = NULL);
 };
 
 /** Access to the transaction database (blkindex.dat) */

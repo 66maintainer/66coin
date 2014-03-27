@@ -251,7 +251,7 @@ bool ToolTipToRichTextFilter::eventFilter(QObject *obj, QEvent *evt)
 }
 
 #ifdef WIN32
-boost::filesystem::path static StartupShortcutPath()
+static boost::filesystem::path StartupShortcutPath()
 {
 	return GetSpecialFolderPath(CSIDL_STARTUP) / "66.lnk";
 }
@@ -319,7 +319,7 @@ bool SetStartOnSystemStartup(bool fAutoStart)
 // Follow the Desktop Application Autostart Spec:
 //  http://standards.freedesktop.org/autostart-spec/autostart-spec-latest.html
 
-boost::filesystem::path static GetAutostartDir()
+static boost::filesystem::path GetAutostartDir()
 {
 	namespace fs = boost::filesystem;
 
@@ -332,7 +332,7 @@ boost::filesystem::path static GetAutostartDir()
 	return fs::path();
 }
 
-boost::filesystem::path static GetAutostartFilePath()
+static boost::filesystem::path GetAutostartFilePath()
 {
 	return GetAutostartDir() / "66.desktop";
 }
