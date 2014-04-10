@@ -1777,7 +1777,7 @@ bool CBlock::AcceptBlock()
 			if (prevBlock.vtx[0].vout.size() != vtx[1].vout.size())
 				return DoS(100, error("AcceptBlock() : incorrect bonus block reward tx"));
 			for (unsigned j = 0; j < vtx[1].vout.size(); j++)
-				if (prevBlock.vtx[0].vout[j].nValue * BONUS_REWARD_FACTOR != vtx[1].vout[j].nValue || prevBlock.vtx[0].vout[j].scriptPubKey != vtx[1].vout[j].scriptPubKey)
+				if ((int64)(prevBlock.vtx[0].vout[j].nValue * BONUS_REWARD_FACTOR) != vtx[1].vout[j].nValue || prevBlock.vtx[0].vout[j].scriptPubKey != vtx[1].vout[j].scriptPubKey)
 					return DoS(100, error("AcceptBlock() : incorrect vout in bonus block reward tx"));
 
 			allowBonus = false;
